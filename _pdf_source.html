@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Jacops Security — Digitale onderhoudschecklist ANPR &amp; CCTV in Xurrent</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", Arial, sans-serif; color: #1f2733; font-size: 10.5pt; line-height: 1.45; margin: 0; }
+  h1 { font-size: 19pt; color: #0b3b6f; margin: 0 0 2px 0; }
+  h2 { font-size: 13pt; color: #0b3b6f; margin: 18px 0 6px 0; padding-bottom: 3px; border-bottom: 2px solid #e2e8f0; }
+  h3 { font-size: 11pt; color: #12395c; margin: 12px 0 4px 0; }
+  p { margin: 5px 0; }
+  ul, ol { margin: 4px 0 6px 0; padding-left: 20px; }
+  li { margin: 2px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 6px 0 10px 0; font-size: 9.3pt; }
+  th, td { border: 1px solid #cbd5e1; padding: 4px 6px; text-align: left; vertical-align: top; }
+  th { background: #0b3b6f; color: #fff; font-weight: 600; }
+  tr:nth-child(even) td { background: #f4f7fb; }
+  .subtitle { color: #5b6b7f; font-size: 10pt; margin-bottom: 10px; }
+  .meta { font-size: 9pt; color: #5b6b7f; border: 1px solid #e2e8f0; background: #f8fafc; padding: 8px 10px; border-radius: 6px; margin-bottom: 12px; }
+  .meta strong { color: #1f2733; }
+  .callout { border-left: 4px solid #0b3b6f; background: #eef4fb; padding: 8px 12px; margin: 10px 0; border-radius: 0 6px 6px 0; }
+  .warn { border-left-color: #b45309; background: #fff7ed; }
+  .ok { border-left-color: #15803d; background: #f0fdf4; }
+  code { background: #eef2f7; padding: 1px 4px; border-radius: 4px; font-family: Consolas, monospace; font-size: 9pt; }
+  pre { background: #0f172a; color: #e2e8f0; padding: 10px 12px; border-radius: 6px; font-size: 8.6pt; overflow-x: auto; white-space: pre-wrap; }
+  .small { font-size: 8.8pt; color: #5b6b7f; }
+  .flow { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 14px; font-size: 9.5pt; font-family: Consolas, monospace; }
+  .pill { display: inline-block; background: #0b3b6f; color: #fff; border-radius: 10px; padding: 1px 9px; font-size: 8.5pt; margin-right: 4px; }
+  .pagebreak { page-break-before: always; }
+  h2, h3 { page-break-after: avoid; }
+  table, .flow, .callout { page-break-inside: avoid; }
+  .footer { margin-top: 16px; border-top: 1px solid #e2e8f0; padding-top: 6px; font-size: 8pt; color: #8595a8; }
+</style>
+</head>
+<body>
+
+<h1>Digitale onderhoudschecklist ANPR &amp; CCTV</h1>
+<div class="subtitle">Van Excel naar een gestructureerde flow in Xurrent — wens, aanbeveling en realisatie</div>
+
+<div class="meta">
+  <strong>Opgesteld voor:</strong> Jacops Security — team Preventief Onderhoud / BI &amp; IT &nbsp;•&nbsp;
+  <strong>Datum:</strong> 13 oktober 2026 &nbsp;•&nbsp;
+  <strong>Platform:</strong> Xurrent (ticketing) + Microsoft 365 / Teams &nbsp;•&nbsp;
+  <strong>Scope:</strong> Fase 0 — Xurrent-native (geen extra tooling of licentiekost)
+</div>
+
+<h2>1. Wat we wensen</h2>
+<p>
+Vandaag gebruiken we een <strong>Excel-formulier</strong> (<em>JACOPS_Preventief_Onderhoud_ANPR_CCTV_V2.xlsx</em>) als checklist voor preventief onderhoud aan ANPR- en CCTV-installaties. Dit werkt, maar is <strong>niet praktisch op terrein</strong>: moeilijk in te vullen op een gsm/tablet, foto's moeten manueel worden ingevoegd, GPS en handtekening gebeuren op papier, en het resultaat wordt nadien manueel overgetypt in het ticket.
+</p>
+<p>De wens is daarom:</p>
+<ul>
+  <li>Een <strong>digitale checklist</strong> die de technieker op gsm/tablet invult tijdens de interventie.</li>
+  <li>De check <strong>direct gekoppeld aan het ticket</strong> in Xurrent (ticket de single source of truth).</li>
+  <li>De gegevens <strong>gestructureerd</strong> opgeslagen, zodat ze later ontsloten kunnen worden voor <strong>BI</strong> en voor het <strong>automatisch genereren van het interventieverslag</strong> via AI.</li>
+  <li>Maximaal gebruik van de <strong>bestaande ecosystemen</strong> (Xurrent + O365/Teams), zonder nu al een extra platform of licentie aan te kopen.</li>
+</ul>
+
+<h3>Wat het formulier vandaag bevat (9 secties)</h3>
+<table>
+  <tr><th>#</th><th>Onderdeel</th><th>Inhoud</th></tr>
+  <tr><td>1</td><td>Algemene info</td><td>Ticket/site-ID, technicus, datum, uren, aantal stuurkasten</td></tr>
+  <tr><td>2</td><td>Locatie &amp; GPS</td><td>Stuurkast-ID, GPS N/E, camera-ID's, locatietype</td></tr>
+  <tr><td>3</td><td>Algemene status</td><td>OK / NOK / WARN + opmerkingen</td></tr>
+  <tr><td>4</td><td>Checklist straatkast</td><td>16 controlepunten (voeding, UPS, I/O, bekabeling, …)</td></tr>
+  <tr><td>5</td><td>Camera's</td><td>Per camera 5 controles + overall status</td></tr>
+  <tr><td>6</td><td>As-built inventaris</td><td>Component, merk/model, serienr, IP, OK?</td></tr>
+  <tr><td>7</td><td>Afwijkingen &amp; acties</td><td>Schade, acties, offerte/vervangstuk nodig?</td></tr>
+  <tr><td>8</td><td>Clôture &amp; afmelding</td><td>Afmeld-call, contactpersoon, tijdstip</td></tr>
+  <tr><td>9</td><td>Handtekeningen</td><td>Technicus + validatie</td></tr>
+  <tr><td>+</td><td>Fotoreportage</td><td>8 fotoblokken met bijschriften</td></tr>
+</table>
+
+<h2>2. Kaders &amp; uitgangspunten</h2>
+<ul>
+  <li><strong>Geen extra licentiekost in Fase 0.</strong> Alles wat op M365-licenties zit, is gratis; premium features (zie §7) stellen we uit.</li>
+  <li><strong>Ticket blijft de bron van waarheid.</strong> De checklist hoort bij het ticket, niet in een los kanaal.</li>
+  <li><strong>Gestructureerde data</strong> primeert: elke waarde wordt als veld/JSON opgeslagen en is API-ontsluitbaar.</li>
+  <li><strong>Tweetalig</strong> (NL/FR) waar nodig, minstens in het eindrapport.</li>
+</ul>
+
+<h2>3. Aanbeveling: bouw het native in Xurrent</h2>
+<p>Xurrent heeft alle bouwstenen om jouw Excel dicht te benaderen — <strong>zonder extra tooling</strong>:</p>
+<table>
+  <tr><th>Bouwsteen</th><th>Waarvoor</th></tr>
+  <tr><td><strong>Request template</strong></td><td>Registratie van de interventie</td></tr>
+  <tr><td><strong>Workflow template</strong></td><td>Splitst de beurt in opeenvolgende taken</td></tr>
+  <tr><td><strong>Task templates</strong></td><td>Herbruikbare deeltaken (info, kast, camera, as-built, …)</td></tr>
+  <tr><td><strong>Checklist in Instructions</strong></td><td>Afvinkbare lijst (aan/uit) op een taak — werkt ook in de mobiele app</td></tr>
+  <tr><td><strong>UI Extension (Designer)</strong></td><td>Aangepaste velden: keuzelijsten (OK/NOK/WARN), tekst, datum, ja/nee, voorwaarden &amp; validatie</td></tr>
+  <tr><td><strong>Note + Attachments</strong></td><td>Opmerkingen en foto's als bijlage</td></tr>
+</table>
+<div class="callout">
+  <strong>Kernprincipe:</strong> de <em>Instructions-checklist</em> is enkel afvinken. Status (OK/NOK/WARN), meetwaarden en opmerkingen horen in <em>UI-Extension-velden</em>. Door beide te combineren krijg je een getrouwe weergave van de Excel, mét audit trail en ticketkoppeling.
+</div>
+<div class="callout warn">
+  <strong>Belangrijk:</strong> Xurrent heeft <strong>geen echt grid</strong>. De per-camera matrix lossen we op met <strong>één taak per camera</strong> in de workflow. Zo wordt de matrix opgesplitst in kleine, mobielvriendelijke taken, elk met eigen controles en foto's.
+</div>
+
+<h2>4. Welke flows per onderdeel</h2>
+<p>De volledige interventie wordt <strong>één workflow</strong>, opgebouwd uit <strong>één taak per onderdeel</strong>. Per onderdeel:</p>
+
+<table>
+  <tr><th>Onderdeel</th><th>Flow / object</th><th>Configuratie</th></tr>
+  <tr>
+    <td><strong>Registratie</strong></td>
+    <td>Request template</td>
+    <td>Subject, categorie, service, team; koppeling aan de workflow; instructie + registratiehints</td>
+  </tr>
+  <tr>
+    <td><strong>1. Algemene info &amp; locatie</strong></td>
+    <td>Taak + UI Extension</td>
+    <td>Velden: ticket, site-ID, technicus, datum, uren, GPS (manueel), locatietype, camera-ID's</td>
+  </tr>
+  <tr>
+    <td><strong>2. Checklist straatkast</strong></td>
+    <td>Taak + Instructions-checklist + UI Extension</td>
+    <td>16 punten als afvinklijst; UI Extension voor algemene status + afwijkende punten (nr, status, waarde, opmerking)</td>
+  </tr>
+  <tr>
+    <td><strong>3. Camera's</strong></td>
+    <td>1 taak per camera + checklist + UI Extension</td>
+    <td>Per camera 5 controles (OK/NOK/WARN) + overall status + opmerking; foto's als bijlage op de taak</td>
+  </tr>
+  <tr>
+    <td><strong>4. As-built inventaris</strong></td>
+    <td>Taak + UI Extension</td>
+    <td>Merk/model, serienummer, IP, as-built OK? per component</td>
+  </tr>
+  <tr>
+    <td><strong>5. Afwijkingen &amp; acties</strong></td>
+    <td>Taak + UI Extension</td>
+    <td>Schade, acties, ter plaatse hersteld?, offerte nodig?, vervangstuk nodig?</td>
+  </tr>
+  <tr>
+    <td><strong>6. Clôture &amp; afmelding</strong></td>
+    <td>Taak + UI Extension</td>
+    <td>Afmeld-call, contactpersoon, tijdstip, zware schade gemeld?</td>
+  </tr>
+  <tr>
+    <td><strong>Foto's</strong></td>
+    <td>Bijlagen op de betreffende taak</td>
+    <td>Vaste notettitel-conventie per fotoblok/camera</td>
+  </tr>
+</table>
+
+<h3>Workflow-overzicht</h3>
+<div class="flow">
+Interventie (request uit template)<br>
+&nbsp;&nbsp;└─ Workflow "PM ANPR &amp; CCTV"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ Taak 1 · Algemene info &amp; locatie<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ Taak 2 · Checklist straatkast &amp; voeding<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ Taak 3 · Camera 1<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ Taak 3 · Camera 2<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ Taak 3 · Camera 3&nbsp;&nbsp;<span class="small">(1 taak per camera, aantal configureerbaar)</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ Taak 4 · As-built inventarisatie<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ Taak 5 · Afwijkingen &amp; acties<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ Taak 6 · Clôture &amp; afmelding
+</div>
+
+<div class="pagebreak"></div>
+<h2>5. Hoe we dit realiseren — stappenplan</h2>
+
+<h3>Stap 1 — Voorbereiding (beheerder)</h3>
+<ul>
+  <li>Team <code>Techniekers PM</code> aanmaken; service <code>PM ANPR &amp; CCTV</code> aanmaken.</li>
+  <li>Rollen regelen: <em>Account Administrator</em> (UI Extensions), <em>Account Designer</em> (templates), <em>Service Desk Manager</em> (request templates).</li>
+  <li><strong>Bouw alles eerst in de QA-account</strong>, daarna uitrollen naar productie.</li>
+</ul>
+
+<h3>Stap 2 — Templates aanmaken</h3>
+<ol>
+  <li><strong>Request template</strong> <code>JACOPS — PM ANPR &amp; CCTV</code> (velden + koppeling aan workflow).</li>
+  <li><strong>Workflow template</strong> <code>JACOPS — PM ANPR &amp; CCTV (workflow)</code> met de 6 taken in volgorde.</li>
+  <li><strong>6 taaktemplates</strong> aanmaken (naamgeving <code>PM — nr. naam</code>).</li>
+</ol>
+
+<h3>Stap 3 — Checklists plaatsen (Instructions)</h3>
+<p>In het <em>Instructions</em>-veld van de taaktemplates: regels typen, selecteren en omzetten naar checklist (icoon, zoals bij een bullet-lijst).</p>
+<pre>Taak 2 — Checklist straatkast &amp; voeding
+
+[ ] 1.  Visuele inspectie, reiniging &amp; ontstoffing binnenzijde straatkast
+[ ] 2.  Staat van kast, behuizing, deur, slot &amp; handgreep
+[ ] 3.  Waterdichtheid, afdichtingen &amp; afwezigheid corrosie/roest
+[ ] 4.  Interne bekabeling: voeding, UTP &amp; glasvezel (buigradius OK)
+[ ] 5.  Glasvezel patchbox &amp; lascassette / pigtails
+[ ] 6.  Voedingsmodule MeanWell EDR-150-24
+[ ] 7.  DC-UPS module Phoenix Contact QUINT
+[ ] 8.  Industriële switch &amp; M2M 4G router / antenne
+[ ] 9.  230V voeding, automaten/disjoncteurs (Q1, Q2) &amp; PoE-injectoren
+[ ] 10. Aardingsverbindingen &amp; klemmenstroken aangespannen
+[ ] 11. Etikettering (Danger sticker, BPS, kabeltags) aanwezig &amp; leesbaar
+[ ] 12. Relais voor coupure op afstand gecontroleerd
+[ ] 13. I/O-module HW Group (LEDs, IN1 deur, IN2 automaat, IN3 UPS)
+[ ] 14. UPS tempo-instelling gecontroleerd (10 min)
+[ ] 15. UPS autonomietest (2 min netonderbreking, voeding behouden)
+[ ] 16. Toestand UPS-batterijen gecontroleerd / vervangen
+
+Taak 3 — Camera (per camera)
+
+[ ] 1. Reiniging optiek &amp; caisson
+[ ] 2. IR &amp; status-LEDs
+[ ] 3. Fixatie en montage
+[ ] 4. Zichtveld cfr. referentie
+[ ] 5. ANPR-lezingen</pre>
+
+<h3>Stap 4 — UI Extensions bouwen (Designer)</h3>
+<p>Per taaktemplate één UI Extension (Settings &gt; UI Extensions &gt; Add &gt; Designer) met secties, velden, voorwaarden en validatie. Voorbeeld van de veldmapping:</p>
+<table>
+  <tr><th>Taak</th><th>Velden (voorbeeld)</th></tr>
+  <tr><td>1. Algemene info</td><td>Ticket, site-ID, interventienr, datum, technicus, adres, gemeente, uren, contactpersoon, aantal kasten, GPS N/E, locatietype (select), camera-ID's</td></tr>
+  <tr><td>2. Checklist straatkast</td><td>Algemene status (OK/NOK/WARN), algemene opmerkingen, afwijkend punt (nr, status, waarde, opmerking)</td></tr>
+  <tr><td>3. Camera</td><td>Camera-ID/positie, 5× status (OK/NOK/WARN), overall status, opmerkingen</td></tr>
+  <tr><td>4. As-built</td><td>Merk/model, serienr, IP, as-built OK? (Ja/Nee/N.v.t.), opmerking</td></tr>
+  <tr><td>5. Afwijkingen</td><td>Afwijkingen, acties, ter plaatse hersteld?, offerte nodig?, vervangstuk nodig? (Ja/Nee)</td></tr>
+  <tr><td>6. Clôture</td><td>Afmeld-call, contactpersoon, tijdstip, zware schade gemeld? (Ja/Nee)</td></tr>
+</table>
+<div class="callout">
+  <strong>Ontwerpkeuze om te bevestigen:</strong> registreren we de status van <em>alle 16 punten</em> (16 keuzelijsten), of enkel de <em>afwijkingen</em> (lichter formulier)? Dit bepaalt de bouwinspanning.
+</div>
+
+<h3>Stap 5 — Foto's</h3>
+<ul>
+  <li>Foto's als <strong>bijlage op de note van de betreffende taak</strong> (camera → camerataak).</li>
+  <li>Vaste conventie: notettitel <code>FOTO &lt;blok&gt; — &lt;omschrijving&gt;</code>, bv. <code>FOTO 1.1 — Stuurkast interieur</code>.</li>
+  <li>Fotoblokken: 1 Stuurkast · 2 Camera's · 3 Omgeving · 4 Schade.</li>
+  <li>Werkt rechtstreeks met de toestelcamera via de Xurrent mobiele app.</li>
+</ul>
+
+<h3>Stap 6 — Testen &amp; uitrollen</h3>
+<ol>
+  <li>Testscenario's in QA: request registreren → taken gegenereerd? Mobiele app: checklist + velden + foto? Validatie blokkeert correct? Camera-taken correct?</li>
+  <li>Uitrol naar productie via de UI-Extension <strong><code>reference</code></strong> (nu definitief vastleggen).</li>
+  <li>Korte werkinstructie voorzien voor de techniekers.</li>
+</ol>
+
+<div class="pagebreak"></div>
+<h2>6. Data-ontsluiting (BI) &amp; AI-rapport</h2>
+<p>Alle UI-Extension-waarden worden opgeslagen als <strong>custom fields (JSON)</strong> op het record en zijn dus API-ontsluitbaar — geen extra tooling nodig.</p>
+<table>
+  <tr><th>Item</th><th>Waarde</th></tr>
+  <tr><td>Base URL</td><td><code>https://api.xurrent.com/v1/</code></td></tr>
+  <tr><td>Authenticatie</td><td>OAuth2 (personal access token / client credentials)</td></tr>
+  <tr><td>Account-header</td><td><code>X-Xurrent-Account: &lt;account&gt;</code></td></tr>
+  <tr><td>Endpoints</td><td><code>/requests</code>, <code>/tasks</code>, <code>/request_templates</code>, <code>/task_templates</code>, Bulk API, Webhooks API</td></tr>
+</table>
+<p><strong>AI-rapport:</strong> de gestructureerde velden + checklist vormen samen de input voor een vaste AI-prompt die het interventieverslag in de eigen templatesjabloon genereert (NL/FR). Dit vermijdt een betaalde Word/PDF-flow.</p>
+
+<h2>7. Wat native niet kan (latere fases)</h2>
+<table>
+  <tr><th>Gemis</th><th>Oplossing later</th></tr>
+  <tr><td>Offline werken</td><td>Fase 1 (Power Apps) of Fase 2 (Power Apps Premium + Dataverse)</td></tr>
+  <tr><td>Automatische GPS</td><td>Fase 1 (Location-connector)</td></tr>
+  <tr><td>Digitale handtekening</td><td>Fase 1 (Pen input) of maatwerk-HTML</td></tr>
+  <tr><td>Echt grid / matrix</td><td>Opgelost via taak-per-camera</td></tr>
+  <tr><td>Branded PDF-export</td><td>AI-prompt of Power Automate (premium)</td></tr>
+</table>
+<div class="callout ok">
+  <strong>Kantelmoment:</strong> zolang de technieker online in Xurrent werkt, is alles gratis (Fase 0). Zodra offline met foto's betrouwbaar moet werken, verantwoordt dat een betaalde licentie (Fase 2) of een gespecialiseerde veld-app.
+</div>
+
+<h2>8. Te beslissen vóór de bouw</h2>
+<ol>
+  <li>Status van <strong>alle 16 punten</strong> of enkel <strong>afwijkingen</strong> registreren?</li>
+  <li>Aantal <strong>camerataken</strong> standaard (3? configureerbaar?)</li>
+  <li><strong>Tweetalig</strong> op elk veld of enkel op het eindrapport?</li>
+  <li><strong>Handtekeningen</strong> in scope? (native niet mogelijk)</li>
+  <li>Koppeling aan <strong>Sites/CI's</strong> nu of later?</li>
+</ol>
+
+<h2>9. Definition of Done</h2>
+<ul>
+  <li>De technieker kan in de mobiele app een volledige PM-beurt uitvoeren: checklist afvinken, status/waarden/opmerkingen invullen, foto's per type toevoegen.</li>
+  <li>Alle gegevens zijn gestructureerd (custom fields JSON) terug te vinden via de API.</li>
+  <li>Flow gedocumenteerd en getest in QA, uitgerold naar productie.</li>
+  <li>Werkinstructie + foto-conventie gekend bij de techniekers.</li>
+</ul>
+
+<div class="footer">
+  Jacops Security — Vertrouwelijk document — eigendom van Jacops Security. Reproductie en verspreiding verboden.<br>
+  Gebaseerd op de bestaande checklist <em>JACOPS_Preventief_Onderhoud_ANPR_CCTV_V2.xlsx</em>.
+</div>
+
+</body>
+</html>

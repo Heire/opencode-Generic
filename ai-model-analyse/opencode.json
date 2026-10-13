@@ -1,0 +1,146 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  "model": "opencode-go/deepseek-v4.1-flash",
+  "small_model": "opencode-go/gpt-6-luna",
+  "default_agent": "router",
+
+  "permission": {
+    "external_directory": "ask"
+  },
+
+  "agent": {
+    "router": {
+      "description": "Taakrouter: classificeert elke vraag en delegeert naar de juiste specialist (automatische modelkeuze per taaktype)",
+      "mode": "primary",
+      "model": "opencode-go/gpt-6-luna",
+      "temperature": 0,
+      "prompt": "Je bent de taakrouter van JACOPS. Classificeer elke gebruikersvraag en delegeer onmiddellijk naar exact \u00e9\u00e9n subagent via de Task-tool. Regels:\n- PDF maken, rapport opmaken, HTML/CSS, WeasyPrint -> pdf-designer\n- Ingescande PDF, foto, OCR, tabellen uitlezen -> ocr-extractie\n- Excel/Word bouwen, openpyxl, python-docx -> office-excel-word\n- VBA, macro's, Office-automatisering -> vba-specialist\n- Lastenboek, bestek, aanbesteding, technische voorschriften -> lastenboek-analist\n- Vertrouwelijk, klantdossier, AVG/GDPR, gevoelige data -> vertrouwelijk-werk\n- Korte vraag, samenvatting, herformulering, sparring -> snelle-vraag\n- Algemene codeertaak of onduidelijk -> general\nVoer de taak zelf niet uit. Antwoord met de delegatie en een korte motivatie (1 regel). Bij twijfel tussen twee specialisten: kies de veiligste (vertrouwelijk-werk > lastenboek-analist > rest).",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "webfetch": "deny",
+        "websearch": "deny",
+        "task": {
+          "*": "deny",
+          "pdf-designer": "allow",
+          "ocr-extractie": "allow",
+          "office-excel-word": "allow",
+          "vba-specialist": "allow",
+          "lastenboek-analist": "allow",
+          "vertrouwelijk-werk": "allow",
+          "snelle-vraag": "allow",
+          "general": "allow"
+        }
+      }
+    },
+
+    "build": {
+      "mode": "primary",
+      "model": "opencode-go/deepseek-v4.1-flash"
+    },
+
+    "plan": {
+      "mode": "primary",
+      "model": "opencode-go/deepseek-v4.1-flash",
+      "temperature": 0.1,
+      "permission": {
+        "edit": "deny",
+        "bash": "ask"
+      }
+    },
+
+    "pdf-designer": {
+      "description": "Bouwt PDF-rapporten: strakke HTML/CSS-templates, WeasyPrint/ReportLab, dynamische interventierapporten",
+      "mode": "subagent",
+      "model": "opencode/claude-sonnet-5-5",
+      "temperature": 0.2,
+      "prompt": "Je bent PDF- en opmaakspecialist. Lever productieklare HTML/CSS voor WeasyPrint (A4, @page, pagina-nummering, huisstijl) en Python-scripts die data dynamisch in het template injecteren. Test je HTML en lever altijd een volledig, uitvoerbaar script."
+    },
+
+    "ocr-extractie": {
+      "description": "Leest ingescande PDF's, foto's van werven/installaties, complexe tabellen en handgeschreven notities uit naar Markdown/JSON",
+      "mode": "subagent",
+      "model": "opencode/qwen3.8-max",
+      "temperature": 0.1,
+      "prompt": "Je bent documentextractiespecialist. Zet scans, foto's en tabellen om naar gestructureerde Markdown of JSON met vaste veldnamen. Behoud tabelstructuur en eenheden. Markeer onzekere waarden expliciet als 'te controleren'. Verzin nooit getallen."
+    },
+
+    "office-excel-word": {
+      "description": "Genereert .xlsx/.docx-bestanden via openpyxl/python-docx en levert kant-en-klare scripts",
+      "mode": "subagent",
+      "model": "opencode/claude-sonnet-5-5",
+      "temperature": 0.2,
+      "prompt": "Je bent Office-automatiseringsspecialist. Schrijf robuuste Python-scripts met openpyxl en python-docx: opmaak, formules, tabellen, celvalidatie en foutafhandeling. Lever scripts die direct uitvoerbaar zijn en benoem de outputpaden."
+    },
+
+    "vba-specialist": {
+      "description": "Ontcijfert, herstructureert en optimaliseert legacy VBA-macro's; robuuste Excel-automatisering en foutafhandeling",
+      "mode": "subagent",
+      "model": "opencode/claude-sonnet-5-5",
+      "temperature": 0.1,
+      "prompt": "Je bent VBA-specialist. Analyseer bestaande macro's, herstructureer ze (functies, foutafhandeling, geen Select/Activate), documenteer wijzigingen en lever volledige, compileerbare modules. Wijs op risico's en teststappen; raad altijd een kopie van de werkmap aan."
+    },
+
+    "lastenboek-analist": {
+      "description": "Analyseert lastenboeken/bestekken: eisen, risico's, tegenstrijdigheden; NL/FR technisch-juridische vaktaal",
+      "mode": "subagent",
+      "model": "opencode/mistral-large-4",
+      "temperature": 0.1,
+      "prompt": "Je bent analist technische bestekken en lastenboeken (Belgi\u00eb, NL/FR). Werk eisen, risico's, tegenstrijdigheden en open punten systematisch uit in tabellen. Citeer altijd de bronpassage en nummer de eisen. Onderscheid 'harde eis' van 'werkwijze/voorkeur'."
+    },
+
+    "vertrouwelijk-werk": {
+      "description": "Verwerkt gevoelige/vertrouwelijke documenten onder strikte privacy (EU-verwerking, geen webtools)",
+      "mode": "subagent",
+      "model": "opencode/mistral-large-4",
+      "temperature": 0.1,
+      "prompt": "Je verwerkt vertrouwelijke klantinformatie. Gebruik geen webtools, citeer geen externe bronnen en houd alle verwerking binnen deze sessie. Vermeld expliciet dat verwerking via een EU-model gebeurt en dat data niet voor training wordt gebruikt. Anonimiseer namen van personen waar mogelijk (initialen)."
+    },
+
+    "snelle-vraag": {
+      "description": "Snelle assistentie: korte vragen, samenvatten, herformuleren, vertalen (NL/FR), dagelijkse sparring",
+      "mode": "subagent",
+      "model": "opencode-go/claude-haiku-5-5",
+      "temperature": 0.3
+    }
+  },
+
+  "command": {
+    "pdf": {
+      "description": "Genereer een PDF-rapport (HTML/CSS + WeasyPrint)",
+      "agent": "pdf-designer",
+      "template": "Maak een PDF-rapport over: $ARGUMENTS. Lever het volledige HTML-template + Python/WeasyPrint-script en sla de output op in ./output/."
+    },
+    "ocr": {
+      "description": "Extraheer tekst/tabellen uit scan of foto",
+      "agent": "ocr-extractie",
+      "template": "Lees het document in $ARGUMENTS uit naar Markdown + JSON met vaste velden. Markeer onzekere waarden."
+    },
+    "excel": {
+      "description": "Bouw een Excel/Word-bestand of script",
+      "agent": "office-excel-word",
+      "template": "Bouw voor $ARGUMENTS een volledig openpyxl/python-docx-script en beschrijf de output."
+    },
+    "vba": {
+      "description": "VBA-macro analyseren/herschrijven",
+      "agent": "vba-specialist",
+      "template": "Analyseer en verbeter de VBA in $ARGUMENTS. Geef de volledige herschreven module plus teststappen."
+    },
+    "lastenboek": {
+      "description": "Lastenboek/bestek analyseren",
+      "agent": "lastenboek-analist",
+      "template": "Analyseer $ARGUMENTS: lijst van eisen, risico's, tegenstrijdigheden en open vragen, telkens met bronpassage."
+    },
+    "confidentieel": {
+      "description": "Vertrouwelijk document verwerken (EU-privacymodus)",
+      "agent": "vertrouwelijk-werk",
+      "template": "Verwerk $ARGUMENTS in confidenti\u00eble modus (geen webtools, EU-model)."
+    },
+    "snel": {
+      "description": "Snel antwoord of samenvatting",
+      "agent": "snelle-vraag",
+      "template": "$ARGUMENTS"
+    }
+  }
+}

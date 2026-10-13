@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI-modellen voor OpenCode — vergelijking, kosten en privacy</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 15mm 13mm 18mm;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: #1c2733;
+      font-size: 9pt;
+      line-height: 1.42;
+      margin: 0;
+    }
+    h1, h2, h3 { color: #16324f; }
+    h1 { font-size: 27pt; line-height: 1.12; margin: 0 0 7px; }
+    h2 {
+      font-size: 15pt;
+      border-bottom: 2.5px solid #e08a2e;
+      padding-bottom: 4px;
+      margin: 18px 0 8px;
+      break-after: avoid;
+    }
+    h3 { font-size: 10.5pt; margin: 11px 0 5px; break-after: avoid; }
+    p { margin: 0 0 7px; }
+    ul, ol { margin: 4px 0 9px 18px; padding: 0; }
+    li { margin: 0 0 4px; }
+    a { color: #245f8f; text-decoration: underline; }
+    .cover {
+      border: 2.5px solid #16324f;
+      border-radius: 7px;
+      padding: 22px 23px 19px;
+      margin: 8mm 0 13mm;
+      background: linear-gradient(135deg, #f8fafc 0%, #fff 72%);
+    }
+    .eyebrow {
+      color: #e08a2e;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.1px;
+      font-size: 8pt;
+      margin-bottom: 9px;
+    }
+    .subtitle { color: #536273; font-size: 13pt; margin-bottom: 17px; }
+    .meta { color: #687787; font-size: 8pt; border-top: 1px solid #d7dde4; padding-top: 9px; }
+    .summary {
+      border-left: 4px solid #e08a2e;
+      background: #fdf5e9;
+      padding: 9px 12px;
+      margin: 8px 0 10px;
+      break-inside: avoid;
+    }
+    .cards { display: flex; gap: 8px; margin: 12px 0; }
+    .card {
+      flex: 1;
+      border: 1px solid #d7dde4;
+      border-top: 4px solid #e08a2e;
+      border-radius: 5px;
+      padding: 8px 9px;
+      break-inside: avoid;
+    }
+    .card strong { display: block; font-size: 14pt; color: #16324f; margin-bottom: 3px; }
+    .card span { color: #596a7a; font-size: 7.6pt; }
+    table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+    thead { display: table-header-group; }
+    tr { break-inside: avoid; }
+    th {
+      background: #16324f;
+      color: #fff;
+      text-align: left;
+      font-size: 7.4pt;
+      font-weight: 700;
+      padding: 5px 5px;
+      vertical-align: top;
+    }
+    td {
+      font-size: 7.5pt;
+      padding: 4px 5px;
+      border-bottom: .6px solid #d7dde4;
+      vertical-align: top;
+    }
+    tbody tr:nth-child(even) { background: #f4f6f9; }
+    .matrix th, .matrix td { text-align: center; padding: 4px 3px; font-size: 7.1pt; }
+    .matrix th:first-child, .matrix td:first-child { text-align: left; width: 20%; }
+    .score { font-weight: 700; }
+    .s10 { background: #17683d; color: #fff; }
+    .s9 { background: #72b48a; color: #102c1b; }
+    .s8 { background: #c7e2cf; }
+    .s7 { background: #e5eddc; }
+    .s6 { background: #f4edda; }
+    .s5 { background: #f4dec0; }
+    .s4, .s3 { background: #efc3b7; }
+    .muted { color: #617181; font-size: 7.7pt; }
+    .small { color: #617181; font-size: 7.4pt; }
+    .note { background: #fdf5e9; border-left: 3px solid #e08a2e; padding: 7px 9px; margin: 8px 0; break-inside: avoid; }
+    .blue-note { background: #edf4fa; border-left: 3px solid #3f6ea5; padding: 7px 9px; margin: 8px 0; break-inside: avoid; }
+    .pagebreak { break-before: page; }
+    .bar-row { display: flex; align-items: center; gap: 7px; margin: 4px 0; break-inside: avoid; }
+    .bar-label { width: 37%; font-size: 7.7pt; }
+    .track { height: 10px; flex: 1; border-radius: 6px; background: #edf0f4; overflow: hidden; }
+    .bar { height: 100%; background: #2e7d4f; border-radius: 6px; }
+    .bar-blue { background: #3f6ea5; }
+    .bar-orange { background: #c47b2a; }
+    .bar-value { width: 12%; text-align: right; color: #16324f; font-weight: 700; font-size: 7.7pt; }
+    .task-table td:first-child { font-weight: 700; width: 17%; }
+    .refs { columns: 2; column-gap: 22px; }
+    .refs li { font-size: 7.2pt; line-height: 1.25; margin-bottom: 3px; overflow-wrap: anywhere; break-inside: avoid; }
+    .footer { display: none; }
+    .nowrap { white-space: nowrap; }
+    .tag { color: #815218; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <header class="cover">
+    <div class="eyebrow">Technische modelvergelijking</div>
+    <h1>AI-modellen voor OpenCode</h1>
+    <div class="subtitle">Benchmark · kosteneffectiviteit · EU-dataresidentie · privacy</div>
+    <div class="cards">
+      <div class="card"><strong>$1,59</strong><span>90M-tokenmix: DeepSeek V4.1 Flash via Go, off-peak (usage-equivalent)</span></div>
+      <div class="card"><strong>$4 / 1.000</strong><span>Mistral OCR 4.1: paginaprijs voor gespecialiseerde document-OCR</span></div>
+      <div class="card"><strong>EU ≠ ZDR</strong><span>Verwerkingsregio, retentie en modeltraining zijn aparte controles</span></div>
+    </div>
+    <div class="meta">Peildatum: 13 oktober 2026 · Prijzen in USD, tenzij anders vermeld · Scores zijn kwalitatieve inschattingen, geen gecontroleerde benchmarkrun</div>
+  </header>
+
+  <h2>Managementsamenvatting</h2>
+  <ul>
+    <li><b>Beste algemene kwaliteit:</b> Claude Sonnet 5.5 en GPT‑6.1 Sol voor code, VBA, Office-bestanden en technisch-juridische documentanalyse. GPT‑6 Astra en Claude Opus 5.5 zijn premiumopties voor uitzonderlijk moeilijke taken.</li>
+    <li><b>Beste lage tokenkosten:</b> DeepSeek V4.1 Flash via Go buiten piekuren (~$1,59 per opgegeven sessiemix), GPT‑6 Luna en Claude Haiku 5.5 (~$1,78). Go is een abonnement met modelquota; deze bedragen zijn verbruikswaarden, geen extra factuur per sessie.</li>
+    <li><b>Beste specialist voor scans:</b> Mistral OCR 4.1 voor gedrukte PDF’s, tabellen en layout. Gebruik een vision-model voor werffoto’s en controleer handschrift/serienummers menselijk.</li>
+    <li><b>Beste EU-hostingkeuze:</b> Scaleway Serverless of OVHcloud AI Endpoints. Mistral en OpenAI kunnen ook EU-inference aanbieden, maar daarvoor moet de regionale route expliciet worden gekozen.</li>
+  </ul>
+  <div class="summary"><b>Interpretatie van de benchmark:</b> 6,5M unieke input + 82,7M cache-hit input + 0,61M output = <b>89,81M</b> tokens. De 90M is dus afgerond; de ontbrekende 0,19M tokens zijn niet geprijsd. De berekening veronderstelt echte cachehits en sluit cachevulling, toolkosten, belastingen en eventuele extra reasoning-output uit.</div>
+
+  <h2>1. Actuele modellen en routes</h2>
+  <p>OpenCode V2 gebruikt <b>OpenCode Console</b> voor pay-as-you-go en <b>OpenCode Go / Go Plus</b> als abonnement ($10/$40 per maand). De actuele catalogi zijn provider- en accountafhankelijk. Go bevat onder meer GPT‑6 Luna, Claude Haiku 5.5, DeepSeek V4.1 Flash/V4 Pro en Qwen3.8 Flash. Console bevat onder meer GPT‑6 Astra/6.1 Sol/Luna, Claude Sonnet/Opus 5.5 en Mistral Large 4. BYOK en OpenAI-compatible custom endpoints zijn eveneens mogelijk.</p>
+  <table>
+    <thead><tr><th>Referentie uit de vraag</th><th>Status op peildatum</th><th>Actuele positionering</th></tr></thead>
+    <tbody>
+      <tr><td>DeepSeek V3 / Coder</td><td>Niet in de geraadpleegde actuele OpenCode-catalogus</td><td>Vergelijk met DeepSeek V4.1 Flash (budget) en V4 Pro (zwaardere code-/agenttaken).</td></tr>
+      <tr><td>Claude Sonnet 5 / Haiku 3.5</td><td>Sonnet 5.5 is actueel; Haiku 3.5 is legacy/uitgefaseerd</td><td>Sonnet 5.5 voor moeilijke taken; Haiku 5.5 voor goedkope, snelle assistentie.</td></tr>
+      <tr><td>GPT‑4o / 4o-mini</td><td>Beschikbaar als direct-API-referentie, maar niet meer de eerste keuze</td><td>GPT‑6 Luna voor goedkoop werk; GPT‑6.1 Sol voor zwaardere analyse.</td></tr>
+      <tr><td>Qwen3-Coder-30B</td><td>Scaleway Serverless EOL sinds 1 oktober 2026</td><td>Gebruik de actieve Qwen3.8-27B of Qwen3.6-35B-A3B-route.</td></tr>
+      <tr><td>Nieuwe relevante modellen</td><td>Actueel</td><td>Claude Sonnet 5.5, GPT‑6.1 Sol/Astra, Mistral Large 4, Qwen3.8 en DeepSeek V4.1.</td></tr>
+    </tbody>
+  </table>
+  <p class="small">OpenCode “Zen” wordt in de huidige V2-documentatie aangeduid als Console. Custom providers kunnen via OpenCode V2 worden ingesteld; tarieven en privacy volgen de gekozen provider en endpoint.</p>
+
+  <h2>2. Vergelijkende matrix — functionaliteitsscores</h2>
+  <p class="small">Schaal: 1 = niet geschikt, 5 = bruikbaar met controle, 8 = sterk, 10 = zeer sterk/gespecialiseerd. PDF- en Office-scores gaan over de kwaliteit van modeloutput en scripts; de agent en lokale tools moeten de bestanden nog daadwerkelijk maken en valideren.</p>
+  <table class="matrix">
+    <thead><tr><th>Model / route</th><th>PDF opbouwen</th><th>Scans / OCR</th><th>XLSX / DOCX</th><th>VBA</th><th>Code / FIM</th><th>Bestek NL/FR</th><th>Assistent</th></tr></thead>
+    <tbody>
+      <tr><td>GPT‑6 Astra · Console</td><td class="score s10">10</td><td class="score s9">9,5</td><td class="score s9">9,5</td><td class="score s9">9,5</td><td class="score s10">10</td><td class="score s10">10</td><td class="score s9">9,5</td></tr>
+      <tr><td>GPT‑6.1 Sol · Console/BYOK</td><td class="score s9">9,5</td><td class="score s9">9</td><td class="score s9">9,5</td><td class="score s9">9,5</td><td class="score s9">9,5</td><td class="score s9">9,5</td><td class="score s9">9</td></tr>
+      <tr><td>GPT‑6 Luna · Go/Console</td><td class="score s8">8</td><td class="score s8">8</td><td class="score s8">8</td><td class="score s8">8</td><td class="score s8">8,5</td><td class="score s8">8</td><td class="score s8">8,5</td></tr>
+      <tr><td>Claude Opus 5.5 · Console</td><td class="score s10">10</td><td class="score s9">9,5</td><td class="score s10">10</td><td class="score s9">9,5</td><td class="score s10">10</td><td class="score s10">10</td><td class="score s9">9,5</td></tr>
+      <tr><td>Claude Sonnet 5.5 · Console/API</td><td class="score s9">9,5</td><td class="score s9">9</td><td class="score s9">9,5</td><td class="score s9">9,5</td><td class="score s9">9,5</td><td class="score s9">9,5</td><td class="score s9">9</td></tr>
+      <tr><td>Claude Haiku 5.5 · Go/Console</td><td class="score s7">7,5</td><td class="score s8">8</td><td class="score s8">8</td><td class="score s7">7,5</td><td class="score s7">7,5</td><td class="score s8">8</td><td class="score s8">8,5</td></tr>
+      <tr><td>Mistral Large 4 · Console/API</td><td class="score s8">8,5</td><td class="score s9">9</td><td class="score s8">8,5</td><td class="score s8">8</td><td class="score s8">8,5</td><td class="score s9">9</td><td class="score s8">8,5</td></tr>
+      <tr><td>DeepSeek V4 Pro · Go</td><td class="score s8">8,5</td><td class="score s6">6,5</td><td class="score s8">8,5</td><td class="score s8">8,5</td><td class="score s9">9</td><td class="score s8">8,5</td><td class="score s8">8,5</td></tr>
+      <tr><td>DeepSeek V4.1 Flash · Go</td><td class="score s7">7,5</td><td class="score s6">6</td><td class="score s7">7,5</td><td class="score s7">7</td><td class="score s8">8</td><td class="score s7">7,8</td><td class="score s7">7,6</td></tr>
+      <tr><td>DeepSeek V4 Flash Vision Exp · Go</td><td class="score s7">7,5</td><td class="score s8">8,5</td><td class="score s7">7,5</td><td class="score s7">7</td><td class="score s8">8</td><td class="score s7">7,5</td><td class="score s7">7,5</td></tr>
+      <tr><td>Qwen3.8 Max · Console</td><td class="score s8">8,5</td><td class="score s7">7</td><td class="score s8">8,5</td><td class="score s8">8</td><td class="score s8">8,5</td><td class="score s8">8,5</td><td class="score s8">8,5</td></tr>
+      <tr><td>Qwen3.8 Flash · Go/Console</td><td class="score s7">7,5</td><td class="score s6">6</td><td class="score s7">7,5</td><td class="score s7">7</td><td class="score s8">8</td><td class="score s7">7,5</td><td class="score s7">7,8</td></tr>
+      <tr><td>Qwen3.8-27B · Scaleway</td><td class="score s8">8</td><td class="score s8">8,5</td><td class="score s8">8</td><td class="score s7">7,5</td><td class="score s8">8,5</td><td class="score s8">8</td><td class="score s8">8</td></tr>
+      <tr><td>Codestral 25.08 · Mistral API</td><td class="score s8">8,5</td><td class="score s3">2</td><td class="score s8">8</td><td class="score s8">8</td><td class="score s9">9,5 FIM</td><td class="score s6">6,5</td><td class="score s6">6,5</td></tr>
+      <tr><td>Mistral Small 4 · Mistral API</td><td class="score s8">8</td><td class="score s6">6</td><td class="score s8">8</td><td class="score s7">7,5</td><td class="score s8">8</td><td class="score s7">7,5</td><td class="score s7">7,8</td></tr>
+      <tr><td>Ministral 3 14B · Mistral API</td><td class="score s7">7,5</td><td class="score s6">6,5</td><td class="score s7">7,5</td><td class="score s7">7</td><td class="score s7">7,5</td><td class="score s7">7</td><td class="score s7">7,5</td></tr>
+      <tr><td>OVH Qwen3.5-9B</td><td class="score s7">7</td><td class="score s7">7,5</td><td class="score s7">7</td><td class="score s6">6,5</td><td class="score s7">7</td><td class="score s7">7,5</td><td class="score s7">7,5</td></tr>
+      <tr><td>GPT‑4o · direct API</td><td class="score s8">8</td><td class="score s8">8,5</td><td class="score s8">8</td><td class="score s7">7,5</td><td class="score s8">8</td><td class="score s8">8</td><td class="score s8">8,3</td></tr>
+      <tr><td>GPT‑4o mini · direct API</td><td class="score s7">7</td><td class="score s7">7,5</td><td class="score s7">7</td><td class="score s6">6,5</td><td class="score s7">7</td><td class="score s7">7</td><td class="score s7">7,6</td></tr>
+      <tr><td>Claude Haiku 3.5 · legacy</td><td class="score s6">6,5</td><td class="score s7">7</td><td class="score s6">6,5</td><td class="score s6">6</td><td class="score s6">6,5</td><td class="score s7">7</td><td class="score s7">7,5</td></tr>
+    </tbody>
+  </table>
+  <div class="note"><b>OCR-specialist:</b> Mistral OCR 4.1 scoort naar schatting 9,5/10 voor gedrukte PDF’s, tabellen en structuur; circa 7–8/10 voor handschrift. Codestral is juist sterk in FIM-codeaanvulling, niet in visuele OCR. Voor volledige PDF- of Office-bestanden blijven lokale scripts, rendering en menselijke controle essentieel.</div>
+  <p class="small">Scores zijn kwalitatieve inschattingen op basis van publieke modelmogelijkheden en providerdocumentatie; geen model is met identieke JACOPS-prompts blind getest. De OCR-scores voor OpenCode-routes zijn conservatief waar de exacte image-input-capability van de route niet expliciet is vastgelegd.</p>
+
+  <div class="pagebreak"></div>
+  <h2>3. Privacy en EU-dataresidentie</h2>
+  <p>Privacy hoort bij de combinatie van model, provider, endpoint, accountinstellingen en contract. De onderstaande drie cijfers scheiden EU-verwerking, retentie/ZDR en training uit elkaar.</p>
+  <table>
+    <thead><tr><th>Route/configuratie</th><th>EU-inference</th><th>ZDR/retentie</th><th>Geen training</th><th>Kernvoorwaarde</th></tr></thead>
+    <tbody>
+      <tr><td>Go: GPT‑6 Luna / Haiku 5.5</td><td>3</td><td>4</td><td>10</td><td>Geen EU-pin; OpenCode vermeldt maximaal 30 dagen retentie voor deze API-routes.</td></tr>
+      <tr><td>Go: DeepSeek/Qwen/GLM e.a.</td><td>3</td><td>9–10</td><td>10</td><td>Go-documentatie vermeldt voor veel routes 0 dagen; DeepSeek-afspraak loopt t/m 31 okt. 2026.</td></tr>
+      <tr><td>Console: OpenAI/Anthropic-routes</td><td>6</td><td>4</td><td>10</td><td>Modellen worden in VS en EU gehost, maar de gebruiker krijgt geen expliciete request-level EU-pin in Console.</td></tr>
+      <tr><td>Console: Mistral-route</td><td>6</td><td>6</td><td>9–10</td><td>Training en retentie volgen Mistral-beleid; Console is niet hetzelfde als expliciet `api.eu.mistral.ai`.</td></tr>
+      <tr><td>OpenAI BYOK: EU-endpoint + goedgekeurde controls</td><td>10</td><td>10</td><td>10</td><td>GPT‑6 Luna en GPT‑6.1 Sol ondersteunen EU-verwerking; ZDR/MAM vereist goedkeuring.</td></tr>
+      <tr><td>Anthropic API BYOK: Sonnet 5.5</td><td>3</td><td>9</td><td>10</td><td>De eerste-partij API is standaard globaal; ZDR is een afzonderlijke, feature-afhankelijke regeling.</td></tr>
+      <tr><td>Mistral API: EU-endpoint + ZDR + opt-out</td><td>10</td><td>10</td><td>10</td><td>Regionale inference kost 10% extra; ZDR moet zijn goedgekeurd en geldt voor ondersteunde stateless API’s.</td></tr>
+      <tr><td>Scaleway Serverless: Qwen3.8-27B</td><td>10</td><td>9</td><td>10</td><td>Inference in Parijs; standaard ZDR, met beperkte uitzonderingen voor incident-/foutonderzoek.</td></tr>
+      <tr><td>OVHcloud AI Endpoints: Qwen3.5-9B</td><td>10</td><td>10</td><td>10</td><td>OVHcloud zegt dat de dienst in de EU draait, geen training toepast en alleen billing-data bewaart.</td></tr>
+      <tr><td>Nebius publieke endpoint</td><td>3</td><td>4</td><td>10</td><td>Regio “Global”; ZDR moet aangezet worden. Zonder ZDR kan content voor speculative decoding worden bewaard.</td></tr>
+      <tr><td>Nebius dedicated EU + ZDR</td><td>10</td><td>10</td><td>10</td><td>EU-regio contractueel vastgelegd; ZDR schakelt speculative decoding uit.</td></tr>
+    </tbody>
+  </table>
+  <p class="small">Een EU-score is geen juridisch AVG-certificaat. Controleer DPA, subprocessors, transferbasis en eventuele bewaartermijnen. No-training, ZDR en regionale inference zijn verschillende toezeggingen.</p>
+
+  <div class="pagebreak"></div>
+  <h2>4. Tarieven en caching — USD</h2>
+  <p class="small">Alle tokenprijzen zijn per miljoen tokens. “Cache read” betekent een echte cachehit. OpenCode Go-tarieven zijn equivalentverbruik binnen de abonnementsquota; Console en BYOK zijn pay-as-you-go. Belastingen, cachevulling en bijkomende tools zijn niet inbegrepen. Prijsindex: 10 bij ≤$2; 9 bij $2–4; 8 bij $4–8; 7 bij $8–16; 6 bij $16–32; 5 bij $32–64; lagere scores bij hogere kosten.</p>
+  <table>
+    <thead><tr><th>Route/model</th><th>Uniek</th><th>Cache read</th><th>Output</th><th>89,81M-mix</th><th>Prijsindex</th></tr></thead>
+    <tbody>
+      <tr><td>Go/Console · GPT‑6 Luna</td><td>$0,10</td><td>$0,01</td><td>$0,50</td><td><b>$1,78</b></td><td>10</td></tr>
+      <tr><td>Go · Claude Haiku 5.5, request ≤100K</td><td>$0,10</td><td>$0,01</td><td>$0,50</td><td><b>$1,78</b></td><td>10</td></tr>
+      <tr><td>Go · Haiku 5.5, request &gt;100K</td><td>$0,50</td><td>$0,05</td><td>$2,50</td><td><b>$8,91</b></td><td>7</td></tr>
+      <tr><td>Go · DeepSeek V4.1 Flash off-peak</td><td>$0,15</td><td>$0,003</td><td>$0,60</td><td><b>$1,59</b></td><td>10</td></tr>
+      <tr><td>Go · DeepSeek V4.1 Flash peak</td><td>$0,30</td><td>$0,006</td><td>$1,20</td><td><b>$3,18</b></td><td>9</td></tr>
+      <tr><td>Go · DeepSeek V4 Pro off-peak</td><td>$0,66</td><td>$0,022</td><td>$1,98</td><td><b>$7,32</b></td><td>8</td></tr>
+      <tr><td>Go · DeepSeek V4 Pro peak</td><td>$1,32</td><td>$0,044</td><td>$3,96</td><td><b>$14,63</b></td><td>7</td></tr>
+      <tr><td>Go/Console · Qwen3.8 Flash</td><td>$0,15</td><td>$0,016</td><td>$0,47</td><td><b>$2,58</b></td><td>9</td></tr>
+      <tr><td>Console · GLM‑5.3 Flash</td><td>$0,15</td><td>$0,03</td><td>$0,50</td><td><b>$3,76</b></td><td>9</td></tr>
+      <tr><td>Console · Qwen3.8 Max</td><td>$2,00</td><td>$0,25</td><td>$6,00</td><td><b>$37,34</b></td><td>5</td></tr>
+      <tr><td>Console · GPT‑6.1 Sol</td><td>$2,00</td><td>$0,20</td><td>$10,00</td><td><b>$35,64</b></td><td>5</td></tr>
+      <tr><td>OpenAI BYOK · GPT‑6.1 Sol</td><td>$2,00</td><td>$0,10</td><td>$10,00</td><td><b>$27,37 global / $30,11 EU</b></td><td>6</td></tr>
+      <tr><td>Console · GPT‑6 Astra</td><td>$10,00</td><td>$1,00</td><td>$50,00</td><td><b>$178,20</b></td><td>1</td></tr>
+      <tr><td>Console · Claude Sonnet 5.5</td><td>$2,00</td><td>$0,20</td><td>$10,00</td><td><b>$35,64</b></td><td>5</td></tr>
+      <tr><td>Anthropic BYOK · Claude Sonnet 5.5</td><td>$2,00</td><td>$0,10</td><td>$10,00</td><td><b>$27,37</b></td><td>6</td></tr>
+      <tr><td>Console/API · Claude Opus 5.5</td><td>$4,00</td><td>$0,20</td><td>$20,00</td><td><b>$54,74</b></td><td>5</td></tr>
+      <tr><td>Console/API · Mistral Large 4, sale</td><td>$0,68</td><td>$0,07</td><td>$2,09</td><td><b>$11,48 global / $12,63 EU</b></td><td>7</td></tr>
+      <tr><td>Mistral API · Codestral 25.08</td><td>$0,30</td><td>$0,03</td><td>$0,90</td><td><b>$4,98 global / $5,48 EU</b></td><td>8</td></tr>
+      <tr><td>Mistral API · Small 4</td><td>$0,15</td><td>$0,015</td><td>$0,60</td><td><b>$2,58 global / $2,84 EU</b></td><td>9</td></tr>
+      <tr><td>Mistral API · Ministral 3 14B</td><td>$0,20</td><td>$0,02</td><td>$0,20</td><td><b>$3,08 global / $3,38 EU</b></td><td>9</td></tr>
+      <tr><td>Mistral API · Ministral 3 8B</td><td>$0,15</td><td>$0,015</td><td>$0,15</td><td><b>$2,31 global / $2,54 EU</b></td><td>9</td></tr>
+      <tr><td>OpenAI API · GPT‑4o, referentie</td><td>$2,50</td><td>$1,25</td><td>$10,00</td><td><b>$125,73</b></td><td>3</td></tr>
+      <tr><td>OpenAI API · GPT‑4o mini, referentie</td><td>$0,15</td><td>$0,075</td><td>$0,60</td><td><b>$7,54</b></td><td>8</td></tr>
+      <tr><td>Anthropic · Haiku 3.5, historisch</td><td>$0,80</td><td>$0,08</td><td>$4,00</td><td><b>$14,26</b></td><td>7</td></tr>
+    </tbody>
+  </table>
+  <div class="note"><b>Prijsverschil per route:</b> OpenCode Console rekent voor GPT‑6.1 Sol en Claude Sonnet 5.5 $0,20/M cache-read; de upstream OpenAI- en Anthropic-API’s publiceren $0,10/M. In deze sessiemix scheelt direct BYOK daardoor $8,27 vóór eventuele EU-toeslag. EU-inference bij OpenAI/Mistral kan 10% kosten; Mistral Large 4 is momenteel geprijsd met een tijdelijke sale-rate.</div>
+
+  <h3>EU-cloud en pagina-gebaseerde OCR</h3>
+  <table>
+    <thead><tr><th>Provider/model</th><th>Input</th><th>Cache read</th><th>Output</th><th>Sessieschatting</th></tr></thead>
+    <tbody>
+      <tr><td>Scaleway · DeepSeek V4.1 Flash</td><td>€0,60</td><td>€0,12</td><td>€1,80</td><td><b>€14,92</b></td></tr>
+      <tr><td>Scaleway · Qwen3.8-27B</td><td>€0,60</td><td>€0,12</td><td>€3,30</td><td><b>€15,84</b></td></tr>
+      <tr><td>OVHcloud · Qwen3.5-9B</td><td>€0,10</td><td>Niet vermeld</td><td>€0,15</td><td><b>€9,01*</b></td></tr>
+      <tr><td>Mistral API · OCR 4.1</td><td>$4 / 1.000 pagina’s</td><td>$0,40 / 1.000 cachepagina’s</td><td>—</td><td>Per pagina, niet tokenmix</td></tr>
+    </tbody>
+  </table>
+  <p class="small">* OVH-berekening veronderstelt geen cachekorting: alle inputtokens worden aan het gepubliceerde standaardtarief gerekend. Scaleway heeft automatische caching; de benchmark neemt de gepubliceerde cache-readprijs aan. Scaleway biedt daarnaast een gratis eerste miljoen tokens en 50% batchkorting voor geschikte asynchrone workloads; die zijn niet in de tabel toegepast.</p>
+
+  <div class="pagebreak"></div>
+  <h2>5. Performance-versus-kostenindex</h2>
+  <p class="small">De prijsindex in de tabellen kijkt alleen naar de tokenrekening. Onderstaande prijs-prestatiekeuzes wegen ook de taakgeschiktheid en absolute kwaliteit mee; het blijft een praktische inschatting.</p>
+  <div class="bar-row"><div class="bar-label">PDF-templates · GPT‑6 Luna als value-keuze</div><div class="track"><div class="bar" style="width:90%"></div></div><div class="bar-value">9/10</div></div>
+  <div class="bar-row"><div class="bar-label">Gedrukte PDF-OCR · Mistral OCR 4.1</div><div class="track"><div class="bar bar-orange" style="width:100%"></div></div><div class="bar-value">10/10</div></div>
+  <div class="bar-row"><div class="bar-label">VBA · DeepSeek V4 Pro via Go</div><div class="track"><div class="bar" style="width:85%"></div></div><div class="bar-value">8,5/10</div></div>
+  <div class="bar-row"><div class="bar-label">FIM-aanvulling · Codestral</div><div class="track"><div class="bar bar-blue" style="width:90%"></div></div><div class="bar-value">9/10</div></div>
+  <div class="bar-row"><div class="bar-label">Bestekken EU/FR · Mistral Large 4 EU-route</div><div class="track"><div class="bar bar-orange" style="width:85%"></div></div><div class="bar-value">8,5/10</div></div>
+  <div class="bar-row"><div class="bar-label">Dagelijkse assistentie · GPT‑6 Luna / Haiku 5.5</div><div class="track"><div class="bar" style="width:95%"></div></div><div class="bar-value">9,5/10</div></div>
+  <table class="task-table">
+    <thead><tr><th>Taak</th><th>Kwaliteitskeuze</th><th>Prijs-prestatiekeuze</th><th>Praktische aanpak</th></tr></thead>
+    <tbody>
+      <tr><td>PDF opbouwen</td><td>Sonnet 5.5 / GPT‑6.1 Sol</td><td>GPT‑6 Luna voor standaardrapporten</td><td>Render lokaal met WeasyPrint/ReportLab en controleer fonts, tabellen en pagina-afbreking.</td></tr>
+      <tr><td>Scans/tabellen</td><td>Mistral OCR 4.1</td><td>OCR 4.1 op paginaprijs; Qwen3.8-27B voor visuele interpretatie</td><td>OCR-resultaat daarna laten structureren; twijfelwaarden en handschrift markeren.</td></tr>
+      <tr><td>XLSX/DOCX</td><td>Sonnet 5.5 / GPT‑6.1 Sol</td><td>GPT‑6 Luna voor eenvoudige templates</td><td>Laat de agent lokaal schrijven met `openpyxl`/`python-docx`; open en valideer de bestanden.</td></tr>
+      <tr><td>VBA</td><td>Sonnet 5.5 / GPT‑6.1 Sol</td><td>DeepSeek V4 Pro via Go voor omvangrijke codeanalyse</td><td>Werk op een kopie van de workbook en test met representatieve data.</td></tr>
+      <tr><td>Lastenboeken</td><td>Sonnet 5.5 / GPT‑6.1 Sol</td><td>Mistral Large 4 voor EU/Franse vaktaal; DeepSeek V4 Pro bij geëxtraheerde tekst</td><td>Werk per eis/clausule, behoud paginaverwijzingen en vraag om expliciete onzekerheden.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>6. Eindadvies en positionering</h2>
+  <table>
+    <thead><tr><th>Gebruik in OpenCode</th><th>Aanbevolen route/model</th><th>Opmerking</th></tr></thead>
+    <tbody>
+      <tr><td>Dagelijkse agent en korte scripts</td><td><code>opencode-go/gpt-6-luna</code> of <code>opencode-go/deepseek-v4.1-flash</code></td><td>Go-quota; DeepSeek-tarief varieert met piekuren.</td></tr>
+      <tr><td>Zware code, VBA en Office</td><td><code>opencode/claude-sonnet-5-5</code> of <code>opencode/gpt-6.1-sol</code></td><td>BYOK kan bij veel cachehits goedkoper zijn dan Console; EU-route voor OpenAI vereist goedkeuring.</td></tr>
+      <tr><td>FIM-codeaanvulling</td><td>Codestral 25.08 via Mistral API</td><td>Specialist voor snelle code completion/FIM; geen algemene OCR-assistent.</td></tr>
+      <tr><td>PDF-scans en tabellen</td><td>Mistral OCR 4.1 + taalmodel voor analyse</td><td>Controleer of het OCR-model op de gekozen EU-regio beschikbaar is.</td></tr>
+      <tr><td>EU-gevoelige documenten</td><td>Scaleway Serverless, OVHcloud AI Endpoints of Nebius dedicated EU + ZDR</td><td>Custom provider in OpenCode; leg DPA, regio, retentie en subprocessors vast.</td></tr>
+    </tbody>
+  </table>
+  <div class="blue-note"><b>Praktische keuze:</b> gebruik een goedkoop Go-model voor routinevragen, schaal voor lastige VBA/contractanalyse op naar Sonnet 5.5 of GPT‑6.1 Sol, en behandel OCR als aparte stap. Als EU-hosting verplicht is, gebruik dan een expliciet EU-endpoint of EU-cloud in plaats van aan te nemen dat OpenCode Go/Console de request regionaal routeert.</div>
+
+  <h2>Bronnen</h2>
+  <ul class="refs">
+    <li><a href="https://opencode.ai/v2/docs/console/go">OpenCode Go — modellen, quota, prijzen en privacy</a></li>
+    <li><a href="https://opencode.ai/v2/docs/console/models">OpenCode Console — modellen, pay-as-you-go-prijzen en privacy</a></li>
+    <li><a href="https://opencode.ai/v2/docs/providers">OpenCode V2 — providers en custom endpoints</a></li>
+    <li><a href="https://developers.openai.com/api/docs/pricing">OpenAI API-prijzen</a> · <a href="https://developers.openai.com/api/docs/guides/your-data">OpenAI-dataretentie en EU-regio</a> · <a href="https://developers.openai.com/api/docs/models/gpt-6.1-sol">GPT‑6.1 Sol-modelkaart</a></li>
+    <li><a href="https://platform.claude.com/docs/en/about-claude/pricing">Anthropic-prijzen</a> · <a href="https://platform.claude.com/docs/en/manage-claude/api-and-data-retention">Anthropic API-retentie/ZDR</a> · <a href="https://platform.claude.com/docs/en/models/sonnet-5-5/overview">Claude Sonnet 5.5-modelkaart</a></li>
+    <li><a href="https://docs.mistral.ai/inference/pricing">Mistral-prijzen</a> · <a href="https://docs.mistral.ai/inference/regional-inference">Mistral regionale inference</a> · <a href="https://docs.mistral.ai/admin/monitor-comply/zero-data-retention">Mistral ZDR</a> · <a href="https://docs.mistral.ai/models/ocr-4-1">OCR 4.1</a> · <a href="https://docs.mistral.ai/models/codestral-25-08">Codestral</a></li>
+    <li><a href="https://www.scaleway.com/en/generative-apis/">Scaleway-prijzen</a> · <a href="https://www.scaleway.com/en/docs/generative-apis/reference-content/supported-models/">Scaleway-modellen/EOL</a> · <a href="https://www.scaleway.com/en/docs/generative-apis/reference-content/data-privacy/">Scaleway-privacy</a></li>
+    <li><a href="https://www.ovhcloud.com/en/public-cloud/ai-endpoints/">OVHcloud AI Endpoints</a> · <a href="https://www.ovhcloud.com/en/public-cloud/ai-endpoints/catalog/qwen-3-5-9b/">OVH Qwen3.5-9B-modelpagina</a></li>
+    <li><a href="https://docs.tokenfactory.nebius.com/legal/legal-quick-guide">Nebius Token Factory — juridische en privacygids</a></li>
+  </ul>
+  <p class="small">Scores en kosten zijn peildatumgebonden inschattingen. Providerprijzen, cachevoorwaarden, modelstatus en quota kunnen wijzigen; controleer ze vóór productiegebruik en facturatie. De 90M-berekening is een tokenmodel, geen echte factuur.</p>
+</body>
+</html>
